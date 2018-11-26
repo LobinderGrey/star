@@ -2,17 +2,22 @@ import pygame, random, sys, time
 
 pygame.init()
 
-win = pygame.display.set_mode((1200,980))
+win = pygame.display.set_mode((1000,700))
 
 pygame.display.set_caption("STAR")
+
+### player ###
 
 shipleft    = [pygame.image.load("tile\\player_ship\\left.png")]
 shipright   = [pygame.image.load("tile\\player_ship\\right.png")]
 shipup      = [pygame.image.load("tile\\player_ship\\uper.png")]
 shipdown    = [pygame.image.load("tile\\player_ship\\down.png")]
+px = 500
+py = 350
 
-px = 600
-py = 490
+mousex = 0
+mousey = 0
+
 width   = 36
 height  = 36
 vel     = 5
@@ -22,7 +27,14 @@ up      = True
 down    = False
 moveCount = 0
 
-##########################  SNOW CODE #################################
+### player end ###
+
+### menue #####
+menuebg     = None
+menuespeed  = [100, 600, 800, 20]
+### menue end #######
+
+##########################  STAR CODE #################################
 
 blue    = (135,206,250)
 black   = (0,0,0)
@@ -33,10 +45,10 @@ red     = (0,255,0)
 
 
 windowWidth     = 1200 
-windowHeight    = 980
-spaceWidth      = 1200
+windowHeight    = 700
+spaceWidth      = 1000
 spaceWidthMax   = spaceWidth + 50
-spaceHeight     = 700  
+spaceHeight     = 500  
 spaceHeightMax  = spaceHeight + 50
 varHeight       = windowHeight
 starSize        = 2
@@ -54,7 +66,7 @@ for q in range(starNum):
     y = random.randrange(0, spaceHeight)
     stars.append([x,y])
 
-########################## END SNOW CODE ##############################
+########################## END STAR CODE ##############################
 
 
 
@@ -81,7 +93,10 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print(pygame.mouse.get_pos())
+            mousex, mousey = pygame.mouse.get_pos()
+            print(mousex)
+            print(mousey)
+            pressed = True
 
 
     keys = pygame.key.get_pressed()
@@ -114,13 +129,6 @@ while run:
         up = False
         down = True
 
-#if mousekeys[pygame.MOUSEBUTTONDOWN]:
- #       mx, my = pygame.mouse.get_pos()
-  #      pygame.draw.rect(win, red, [700,700, 10, 100])
-   #     pygame.display.flip()
-    #    print("hallo")
-
-    #######
     for i in stars:
 
         i[0] += velocityX
@@ -141,6 +149,12 @@ while run:
             i[1] = random.randrange(spaceHeight)
             i[0] = random.randrange(spaceWidth, spaceWidthMax)
 
+    ###### Speed menue #######
+    if mousex > 100 and mousex < 800 and mousey > 600 and mousey < 620:
+        menuespeed[2] = mousex - 100    
+    pygame.draw.rect(win, blue, pygame.Rect(menuespeed[0], menuespeed[1], menuespeed[2], menuespeed[3]))
+
+    ##### speed menue #######
 
     pygame.display.flip()
     ###########
