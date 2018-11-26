@@ -1,18 +1,22 @@
-import pygame, random, sys, time
+import pygame, random, sys, time, math
 
 pygame.init()
 
-win = pygame.display.set_mode((1000,700))
 
-pygame.display.set_caption("STAR")
 
 ### player ###
 
-shipleft    = [pygame.image.load("tile\\player_ship\\left.png")]
-shipright   = [pygame.image.load("tile\\player_ship\\right.png")]
+
+
+ship = pygame.image.load("tile\\player_ship\\uper.png")
+
+##### helper should be removed ##################
+shipleft    = [pygame.image.load("tile\\player_ship\\uper.png")]
+shipright   = [pygame.image.load("tile\\player_ship\\uper.png")]
 shipup      = [pygame.image.load("tile\\player_ship\\uper.png")]
-shipdown    = [pygame.image.load("tile\\player_ship\\down.png")]
-px = 500
+shipdown    = [pygame.image.load("tile\\player_ship\\uper.png")]
+
+px = 650
 py = 350
 
 mousex = 0
@@ -20,10 +24,11 @@ mousey = 0
 
 width   = 36
 height  = 36
-vel     = 5
+#vel     = 5
+speed   = 0
 left    = False
 right   = False
-up      = True
+up      = False
 down    = False
 moveCount = 0
 
@@ -31,7 +36,8 @@ moveCount = 0
 
 ### menue #####
 menuebg     = None
-menuespeed  = [100, 600, 800, 20]
+menuespeedbg = [18, 600, 182, 10]
+menuespeed  = [20, 600, 180, 8]
 ### menue end #######
 
 ##########################  STAR CODE #################################
@@ -43,23 +49,24 @@ yellow  = (255,255,0)
 green   = (0,128,0)
 red     = (0,255,0)
 
-
-windowWidth     = 1200 
+windowWidth     = 1000 
 windowHeight    = 700
-spaceWidth      = 1000
-spaceWidthMax   = spaceWidth + 50
-spaceHeight     = 500  
+spaceWidth      = windowWidth
+spaceWidthMax   = windowWidth + 50
+spaceHeight     = windowHeight  
 spaceHeightMax  = spaceHeight + 50
-varHeight       = windowHeight
 starSize        = 2
 starNum         = 200
 FPS             = 120
-velocityX = 0
-velocityY = 0
+velocityX       = float(0)
+velocityY       = float(0)
 
 starcolor = white
 
 stars = []
+
+win = pygame.display.set_mode((windowWidth, windowHeight))
+pygame.display.set_caption("STAR")
 
 for q in range(starNum):
     x = random.randrange(0, spaceWidth)
@@ -70,18 +77,30 @@ for q in range(starNum):
 
 
 
+########################## get angle ########################
+
+def getangle(x1,y1,x2,y2):
+    dot = x1*x2 + y1*y2      # dot product
+    det = x1*y2 - y1*x2      # determinant
+    angle = math.atan2(det, dot) + 360 * (det<0)
+    return angle
+######################### END get angle ##################################
+
+
+
 def redrawGameWindow():
     global moveCount
     win.fill((0))
     #pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
     if left:
-        win.blit(shipleft[moveCount], (px,py))
+        win.blit(shipleft, (px,py))
     if right:
-        win.blit(shipright[moveCount], (px,py))
+        win.blit(shipright, (px,py))
     if up:
-        win.blit(shipup[moveCount], (px,py))
+        win.blit(shipup, (px,py))
     if down:
-        win.blit(shipdown[moveCount], (px,py))
+        win.blit(shipdown, (px,py))
+
 
     #pygame.display.update()
 
@@ -96,34 +115,41 @@ while run:
             mousex, mousey = pygame.mouse.get_pos()
             print(mousex)
             print(mousey)
+            blub = getangle(mousex, mousey, px, py)
+            shipleft = pygame.transform.rotate(ship, int(round(blub)))
+            print(blub)
             pressed = True
 
 
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT]:
-        velocityX = 2
+        velocityX = 1 * speed
+        shipleft = pygame.transform.rotate(ship, 90)
         left = True
         right = False
         up = False
         down = False
 
     if keys[pygame.K_RIGHT]:
-        velocityX = -2
+        velocityX = -1 * speed
+        shipright = pygame.transform.rotate(ship,270)
         right = True
         left = False
         up = False
         down = False
 
     if keys[pygame.K_UP]:
-        velocityY = 2
+        shipup = ship
+        velocityY = 1 * speed
         right = False
         left = False
         up = True
         down = False
 
     if keys[pygame.K_DOWN]:
-        velocityY = -2
+        velocityY = -1 * speed
+        shipdown = pygame.transform.rotate(ship,180)
         right = False
         left = False
         up = False
@@ -131,27 +157,40 @@ while run:
 
     for i in stars:
 
-        i[0] += velocityX
-        i[1] += velocityY
+        i[0] += int(round(velocityX))
+        i[1] += int(round(velocityY))
         pygame.draw.circle(win, starcolor, i, starSize) 
         if i[1] > spaceHeight:
-            i[1] = random.randrange(-50,-5)
-            i[0] = random.randrange(spaceWidth)
-        if i[1] < -50:
+            i[0] = random.randrange(200,spaceWidth)
+            i[1] = 0
+        if i[1] < 0:
             ########
-            i[1] = random.randrange(spaceHeight, spaceHeightMax)
-            i[0] = random.randrange(spaceWidth)
-        if i[0] > spaceWidth:
-            i[1] = random.randrange(spaceHeight)
-            i[0] = random.randrange(-50,-5)
-        if i[0] < -50:
-            #########
-            i[1] = random.randrange(spaceHeight)
-            i[0] = random.randrange(spaceWidth, spaceWidthMax)
+            i[0] = random.randrange(200,spaceWidth)
+            i[1] = spaceHeight
+        if i[0] > windowWidth:
+            i[0] = 200
+            i[1] = random.randrange(0, spaceHeight)
+        if i[0] < 200:
+            i[0] = windowWidth
+            i[1] = random.randrange(0, spaceHeight)
 
     ###### Speed menue #######
-    if mousex > 100 and mousex < 800 and mousey > 600 and mousey < 620:
-        menuespeed[2] = mousex - 100    
+    if mousex > 20 and mousex < 180 and mousey > 602 and mousey < 608:
+        menuespeed[2] = mousex - 20
+        if menuespeed[2] < 50:
+            speed = 0
+            print("speed 0")
+        if menuespeed[2] > 50:
+            speed = 2
+            print("speed 2")
+        if menuespeed[2] > 100: 
+            speed = 5
+            print("speed 5")
+        if menuespeed[2] > 140:
+            speed = 8
+            print("speed 8")
+        
+    pygame.draw.rect(win, yellow, pygame.Rect(menuespeedbg[0], menuespeedbg[1], menuespeedbg[2], menuespeedbg[3]))
     pygame.draw.rect(win, blue, pygame.Rect(menuespeed[0], menuespeed[1], menuespeed[2], menuespeed[3]))
 
     ##### speed menue #######
